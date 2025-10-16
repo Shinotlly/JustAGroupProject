@@ -8,4 +8,8 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.DirectoryServices.AccountManagement" Version="9.0.10" />
+  </ItemGroup>
+
 </Project>

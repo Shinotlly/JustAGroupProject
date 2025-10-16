@@ -10,14 +10,27 @@
 
             <!-- Kullanıcılar -->
             <TabItem Header="Kullanıcılar" Tag="Users">
-                <Grid Background="White">
-                    <TextBlock Text="Kullanıcı yönetimi ekranı"
-                               VerticalAlignment="Center"
-                               HorizontalAlignment="Center"
-                               FontSize="18"
-                               Foreground="Gray"/>
+                <Grid Background="White" Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Başlık -->
+                    <TextBlock Text="Kullanıcı Yönetimi" 
+                   FontSize="18" 
+                   FontWeight="Bold" 
+                   Margin="0,0,0,10"/>
+
+                    <!-- Kullanıcı Listesi -->
+                    <ListBox x:Name="UserListBox"
+                 Grid.Row="1"
+                 BorderBrush="#ccc" 
+                 BorderThickness="1"
+                 FontSize="14"/>
                 </Grid>
             </TabItem>
+
 
             <!-- Dosya İzinleri -->
             <TabItem Header="Dosya İzinleri" Tag="FilePermissions">
