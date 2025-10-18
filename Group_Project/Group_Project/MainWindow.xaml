@@ -71,22 +71,20 @@
 
                     <!-- Okunabilir/Yazılabilir kutuları -->
                     <StackPanel Grid.Row="2"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Center"
-                    Margin="0,10,0,0">
+            Orientation="Horizontal"
+            HorizontalAlignment="Center"
+            Margin="0,10,0,0">
                         <CheckBox x:Name="ReadOnlyCheck"
-                      Content="Sadece Okunabilir"
-                      Margin="20,0"
-                      FontSize="13"
-                      Checked="ReadOnlyCheck_Checked"
-                      Unchecked="ReadOnlyCheck_Unchecked"/>
+              Content="Sadece Okunabilir"
+              Margin="20,0"
+              FontSize="13"
+              Click="ReadOnlyCheck_Click"/>
 
                         <CheckBox x:Name="WritableCheck"
-                      Content="Yazılabilir"
-                      Margin="20,0"
-                      FontSize="13"
-                      Checked="WritableCheck_Checked"
-                      Unchecked="WritableCheck_Unchecked"/>
+              Content="Yazılabilir"
+              Margin="20,0"
+              FontSize="13"
+              Click="WritableCheck_Click"/>
                     </StackPanel>
                 </Grid>
             </TabItem>
