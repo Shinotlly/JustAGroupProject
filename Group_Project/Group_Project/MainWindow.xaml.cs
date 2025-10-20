@@ -7,6 +7,8 @@ using System.Windows;
 using System.Management;
 using System;
 using System.Security.Principal;
+using System.Diagnostics;
+using System.Windows.Controls;
 
 namespace Group_Project
 {
@@ -116,31 +118,58 @@ namespace Group_Project
         {
             try
             {
-                var info = new FileInfo(path);
-                ReadOnlyCheck.IsChecked = info.IsReadOnly;
-                WritableCheck.IsChecked = !info.IsReadOnly;
+                var fileInfo = new FileInfo(path);
+                var security = fileInfo.GetAccessControl();
+
+                bool canWrite = false;
+
+                var rules = security.GetAccessRules(true, true, typeof(NTAccount));
+                foreach (FileSystemAccessRule rule in rules)
+                {
+                    if (rule.AccessControlType == AccessControlType.Allow)
+                    {
+                        // Eğer herhangi bir izin yazmaya izin veriyorsa
+                        if ((rule.FileSystemRights & FileSystemRights.Write) != 0 ||
+                            (rule.FileSystemRights & FileSystemRights.Modify) != 0 ||
+                            (rule.FileSystemRights & FileSystemRights.FullControl) != 0)
+                        {
+                            canWrite = true;
+                            break; // Bir kez yazma izni bulduğunda yeter
+                        }
+                    }
+                }
+
+                // Checkbox "Sadece Okunabilir" olacak şekilde ayarla
+                ReadOnlyToggle.IsChecked = !canWrite;
             }
             catch
             {
-                ReadOnlyCheck.IsChecked = false;
-                WritableCheck.IsChecked = false;
+                ReadOnlyToggle.IsChecked = false;
             }
         }
 
-        private void ReadOnlyCheck_Click(object sender, RoutedEventArgs e)
+
+        private void ReadOnlyToggle_Checked(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(_selectedPath)) return;
+            if (string.IsNullOrEmpty(_selectedPath))
+                return;
+
+            var checkBox = sender as CheckBox;
+            bool makeReadOnly = checkBox?.IsChecked == true;
 
             try
             {
-                // Her zaman checked olacak şekilde bırak
-                ReadOnlyCheck.IsChecked = true;
-                WritableCheck.IsChecked = false;
+                if (makeReadOnly)
+                {
+                    SetFileAccess(_selectedPath, readOnly: true);
+                    MessageBox.Show("Dosya sadece okunabilir hale getirildi.");
+                }
+                else
+                {
+                    SetFileAccess(_selectedPath, readOnly: false);
+                    MessageBox.Show("Dosya yazılabilir hale getirildi.");
+                }
 
-                // Dosyayı sadece okunabilir yap
-                SetEveryoneReadOnly(_selectedPath);
-
-                // ACL listesini güncelle
                 ShowFileAcl(_selectedPath);
             }
             catch (Exception ex)
@@ -149,82 +178,47 @@ namespace Group_Project
             }
         }
 
-        private void WritableCheck_Click(object sender, RoutedEventArgs e)
+        private void SetFileAccess(string path, bool readOnly)
         {
-            if (string.IsNullOrEmpty(_selectedPath)) return;
+            var fileInfo = new FileInfo(path);
+
+            // Dosya sisteminin readonly flag’ini ayarla
+            fileInfo.IsReadOnly = readOnly;
 
             try
             {
-                // Her zaman checked olacak şekilde bırak
-                WritableCheck.IsChecked = true;
-                ReadOnlyCheck.IsChecked = false;
+                var security = new FileSecurity();
 
-                // Dosyayı yazılabilir yap
-                SetEveryoneWritable(_selectedPath);
+                var system = new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null);
+                var admins = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
+                var users = new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null);
+                var everyone = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
 
-                // ACL listesini güncelle
-                ShowFileAcl(_selectedPath);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"İzin değiştirilemedi: {ex.Message}");
-            }
-        }
+                FileSystemRights rights = readOnly
+                    ? FileSystemRights.Read | FileSystemRights.ReadAndExecute
+                    : FileSystemRights.FullControl;
 
+                security.SetAccessRuleProtection(true, false);
+                security.AddAccessRule(new FileSystemAccessRule(system, FileSystemRights.FullControl, AccessControlType.Allow));
+                security.AddAccessRule(new FileSystemAccessRule(admins, FileSystemRights.FullControl, AccessControlType.Allow));
+                security.AddAccessRule(new FileSystemAccessRule(users, rights, AccessControlType.Allow));
+                security.AddAccessRule(new FileSystemAccessRule(everyone, rights, AccessControlType.Allow));
 
-        private void SetEveryoneReadOnly(string path)
-        {
-
-            try
-            {
-                var fileInfo = new FileInfo(path);
-                var security = fileInfo.GetAccessControl();
-                SecurityIdentifier everyone = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
-
-                // Önce Everyone için tüm izinleri kaldır
-                security.PurgeAccessRules(everyone);
-
-                // Sadece okuma izinleri ekle
-                security.AddAccessRule(new FileSystemAccessRule(
-                    everyone,
-                    FileSystemRights.Read | FileSystemRights.ReadAndExecute,
-                    AccessControlType.Allow));
-
-                // Uygula
                 fileInfo.SetAccessControl(security);
-                MessageBox.Show("Everyone için dosya 'sadece okunabilir' hale getirildi.");
             }
-            catch (Exception ex)
+            catch (UnauthorizedAccessException)
             {
-                MessageBox.Show($"İzin değiştirilemedi: {ex.Message}");
+                string mode = readOnly ? "R" : "F";
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "icacls",
+                    Arguments = $"\"{path}\" /reset /grant Everyone:{mode}",
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                })?.WaitForExit();
             }
         }
 
-        private void SetEveryoneWritable(string path)
-        {
-            try
-            {
-                var fileInfo = new FileInfo(path);
-                var security = fileInfo.GetAccessControl();
-                SecurityIdentifier everyone = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
 
-                // Önce Everyone için tüm izinleri kaldır
-                security.PurgeAccessRules(everyone);
-
-                // FullControl izinleri ekle
-                security.AddAccessRule(new FileSystemAccessRule(
-                    everyone,
-                    FileSystemRights.FullControl,
-                    AccessControlType.Allow));
-
-                // Uygula
-                fileInfo.SetAccessControl(security);
-                MessageBox.Show("Everyone için dosya yazılabilir hale getirildi.");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"İzin değiştirilemedi: {ex.Message}");
-            }
-        }
     }
 }

@@ -74,17 +74,13 @@
             Orientation="Horizontal"
             HorizontalAlignment="Center"
             Margin="0,10,0,0">
-                        <CheckBox x:Name="ReadOnlyCheck"
-              Content="Sadece Okunabilir"
-              Margin="20,0"
-              FontSize="13"
-              Click="ReadOnlyCheck_Click"/>
+                        <CheckBox x:Name="ReadOnlyToggle"
+          Content="Sadece Okunabilir"
+          Margin="20,0"
+          FontSize="13"
+          Checked="ReadOnlyToggle_Checked"
+          Unchecked="ReadOnlyToggle_Checked"/>
 
-                        <CheckBox x:Name="WritableCheck"
-              Content="Yazılabilir"
-              Margin="20,0"
-              FontSize="13"
-              Click="WritableCheck_Click"/>
                     </StackPanel>
                 </Grid>
             </TabItem>
