@@ -62,7 +62,7 @@ namespace Group_Project
             var dialog = new OpenFileDialog();
             if (dialog.ShowDialog() == true)
             {
-                _selectedPath = dialog.FileName; // ✅ Artık dosya yolu kaydediliyor
+                _selectedPath = dialog.FileName;
 
                 FilePathText.Text = $"Seçilen dosya: {_selectedPath}";
 
@@ -73,7 +73,7 @@ namespace Group_Project
                                     $"Sahip: {GetFileOwner(_selectedPath)}";
 
                 ShowFileAcl(_selectedPath);
-                UpdateCheckBoxes(_selectedPath); // ✅ Dosya seçilince checkbox’lar güncelleniyor
+                UpdateCheckBoxes(_selectedPath);
             }
         }
 
@@ -113,7 +113,7 @@ namespace Group_Project
             return "Sahip bulunamadı";
         }
 
-        // CheckBox durumlarını güncelle
+
         private void UpdateCheckBoxes(string path)
         {
             try
@@ -128,18 +128,17 @@ namespace Group_Project
                 {
                     if (rule.AccessControlType == AccessControlType.Allow)
                     {
-                        // Eğer herhangi bir izin yazmaya izin veriyorsa
                         if ((rule.FileSystemRights & FileSystemRights.Write) != 0 ||
                             (rule.FileSystemRights & FileSystemRights.Modify) != 0 ||
                             (rule.FileSystemRights & FileSystemRights.FullControl) != 0)
                         {
                             canWrite = true;
-                            break; // Bir kez yazma izni bulduğunda yeter
+                            break;
                         }
                     }
                 }
 
-                // Checkbox "Sadece Okunabilir" olacak şekilde ayarla
+  
                 ReadOnlyToggle.IsChecked = !canWrite;
             }
             catch
@@ -182,7 +181,7 @@ namespace Group_Project
         {
             var fileInfo = new FileInfo(path);
 
-            // Dosya sisteminin readonly flag’ini ayarla
+
             fileInfo.IsReadOnly = readOnly;
 
             try
@@ -216,6 +215,48 @@ namespace Group_Project
                     UseShellExecute = false,
                     CreateNoWindow = true
                 })?.WaitForExit();
+            }
+        }
+        private void CreateUserButton_Click(object sender, RoutedEventArgs e)
+        {
+            string username = NewUsernameText.Text?.Trim();
+            string password = NewPasswordBox.Password;
+
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            {
+                MessageBox.Show("Kullanıcı adı ve parola girin.", "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                using (var context = new PrincipalContext(ContextType.Machine))
+                {
+                    var existing = UserPrincipal.FindByIdentity(context, username);
+                    if (existing != null)
+                    {
+                        MessageBox.Show("Bu kullanıcı zaten mevcut.", "Bilgi", MessageBoxButton.OK, MessageBoxImage.Information);
+                        return;
+                    }
+
+                    using (var user = new UserPrincipal(context))
+                    {
+                        user.Name = username;
+                        user.SetPassword(password);
+                        user.Enabled = true;
+                        user.PasswordNeverExpires = true;
+                        user.Save();
+                    }
+                }
+
+                MessageBox.Show($"'{username}' adlı kullanıcı oluşturuldu.", "Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
+                NewUsernameText.Clear();
+                NewPasswordBox.Clear();
+                LoadLocalUsers();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Kullanıcı oluşturulamadı:\n{ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
