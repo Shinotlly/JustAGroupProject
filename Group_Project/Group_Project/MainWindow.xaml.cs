@@ -260,6 +260,42 @@ namespace Group_Project
             }
         }
 
+        private void ChangeOwnerButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(_selectedPath) || !File.Exists(_selectedPath))
+            {
+                MessageBox.Show("Lütfen önce bir dosya seçin.", "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            string newOwner = NewOwnerTextBox.Text?.Trim();
+            if (string.IsNullOrEmpty(newOwner))
+            {
+                MessageBox.Show("Yeni sahibin kullanıcı adını girin.", "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                var fileInfo = new FileInfo(_selectedPath);
+                var fileSecurity = fileInfo.GetAccessControl();
+
+                var account = new NTAccount(newOwner);
+                fileSecurity.SetOwner(account);
+
+                fileInfo.SetAccessControl(fileSecurity);
+
+                MessageBox.Show($"Dosyanın sahibi '{newOwner}' olarak değiştirildi.", "Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
+
+
+                ShowFileAcl(_selectedPath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Sahiplik değiştirilemedi:\n{ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
 
     }
 }

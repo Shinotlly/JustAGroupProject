@@ -65,14 +65,14 @@
             <!-- Dosya İzinleri -->
             <TabItem Header="Dosya Yönetimi" Tag="FilePermissions">
                 <Grid Margin="10">
-                    <!-- 3 satır: 1. Dosya seçme, 2. Bilgiler, 3. CheckBox alanı -->
+                    <!-- 3 satır: 1. Dosya seçme, 2. Bilgiler, 3. CheckBox + Sahiplik alanı -->
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <!-- Dosya Seç Butonu -->
                         <RowDefinition Height="*"/>
                         <!-- Bilgi ve Liste -->
                         <RowDefinition Height="Auto"/>
-                        <!-- CheckBoxlar -->
+                        <!-- CheckBox + Sahiplik -->
                     </Grid.RowDefinitions>
 
                     <!-- Dosya Seçme Butonu -->
@@ -99,45 +99,39 @@
                      BorderThickness="1"/>
                     </StackPanel>
 
-                    <!-- Okunabilir/Yazılabilir kutuları -->
+                    <!-- Okunabilir/Yazılabilir kutusu + Sahipliği Değiştirme Alanı -->
                     <StackPanel Grid.Row="2"
-            Orientation="Horizontal"
-            HorizontalAlignment="Center"
-            Margin="0,10,0,0">
+                    Orientation="Vertical"
+                    HorizontalAlignment="Center"
+                    Margin="0,10,0,0">
+
+                        <!-- Okunabilir Toggle -->
                         <CheckBox x:Name="ReadOnlyToggle"
-          Content="Sadece Okunabilir"
-          Margin="20,0"
-          FontSize="13"
-          Checked="ReadOnlyToggle_Checked"
-          Unchecked="ReadOnlyToggle_Checked"/>
+                      Content="Sadece Okunabilir"
+                      Margin="0,0,0,10"
+                      FontSize="13"
+                      Checked="ReadOnlyToggle_Checked"
+                      Unchecked="ReadOnlyToggle_Checked"/>
+
+                        <!-- Sahipliği Değiştir Alanı -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBox x:Name="NewOwnerTextBox"
+                         Width="160"
+                         Height="26"
+                         VerticalContentAlignment="Center"
+                         Margin="0,0,10,0"
+                         ToolTip="Yeni sahip kullanıcı adı"/>
+                            <Button x:Name="ChangeOwnerButton"
+                        Content="Sahipliği Değiştir"
+                        Width="150"
+                        Height="26"
+                        Click="ChangeOwnerButton_Click"/>
+                        </StackPanel>
 
                     </StackPanel>
                 </Grid>
             </TabItem>
 
-
-
-            <!-- Grup İzinleri -->
-            <TabItem Header="Grup İzinleri" Tag="GroupPermissions">
-                <Grid Background="White">
-                    <TextBlock Text="Grup izinleri ekranı"
-                               VerticalAlignment="Center"
-                               HorizontalAlignment="Center"
-                               FontSize="18"
-                               Foreground="Gray"/>
-                </Grid>
-            </TabItem>
-
-            <!-- Dosya Sahipliği -->
-            <TabItem Header="Dosya Sahipliği" Tag="FileOwnership">
-                <Grid Background="White">
-                    <TextBlock Text="Dosya sahipliği ekranı"
-                               VerticalAlignment="Center"
-                               HorizontalAlignment="Center"
-                               FontSize="18"
-                               Foreground="Gray"/>
-                </Grid>
-            </TabItem>
 
             <!-- Şifre Yönetimi -->
             <TabItem Header="Şifre Yönetimi" Tag="PasswordManagement">
