@@ -132,18 +132,6 @@
                 </Grid>
             </TabItem>
 
-
-            <!-- Şifre Yönetimi -->
-            <TabItem Header="Şifre Yönetimi" Tag="PasswordManagement">
-                <Grid Background="White">
-                    <TextBlock Text="Şifre yönetimi ekranı"
-                               VerticalAlignment="Center"
-                               HorizontalAlignment="Center"
-                               FontSize="18"
-                               Foreground="Gray"/>
-                </Grid>
-            </TabItem>
-
         </TabControl>
     </Grid>
 </Window>
