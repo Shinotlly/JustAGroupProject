@@ -1,5 +1,7 @@
 # JustAGroupProject
 
+İşletim Sistemleri -- Hasan SERDAR
+
 23370031061 Samet Yılmaz
 23370031053 Safa Kurukaya
 23370031036  Harun Bilge
