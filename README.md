@@ -1,6 +1,6 @@
 # JustAGroupProject
 
-İşletim Sistemleri -- Hasan SERDAR
+İşletim Sistemleri -- Dr. Ögr Üyesi Hasan SERDAR
 
 23370031061 Samet Yılmaz
 23370031053 Safa Kurukaya
